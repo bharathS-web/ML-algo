@@ -1,0 +1,117 @@
+from sklearn.datasets import load_iris
+import pandas as pd
+
+# Load the Iris dataset
+iris = load_iris()
+X_iris, y_iris = iris.data, iris.target
+
+# Load the Wine Quality dataset
+wine_quality_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv'
+wine_data = pd.read_csv(wine_quality_url, delimiter=';')
+X_wine = wine_data.drop('quality', axis=1)
+y_wine = wine_data['quality']
+
+###
+
+from sklearn.model_selection import train_test_split
+
+# Split the Iris dataset
+X_train_iris, X_test_iris, y_train_iris, y_test_iris = train_test_split(X_iris, y_iris, test_size=0.3, random_state=42)
+
+# Split the Wine Quality dataset
+X_train_wine, X_test_wine, y_train_wine, y_test_wine = train_test_split(X_wine, y_wine, test_size=0.3, random_state=42)
+
+###
+
+from sklearn.ensemble import VotingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+# Define the base models
+log_clf = LogisticRegression(max_iter=1000)
+rf_clf = RandomForestClassifier()
+svm_clf = SVC(probability=True)
+
+# Hard Voting (majority voting)
+voting_clf_hard = VotingClassifier(estimators=[
+    ('lr', log_clf), ('rf', rf_clf), ('svc', svm_clf)], voting='hard')
+
+# Train and evaluate on Iris dataset
+voting_clf_hard.fit(X_train_iris, y_train_iris)
+y_pred_iris = voting_clf_hard.predict(X_test_iris)
+print("Voting Classifier (Hard Voting) Accuracy on Iris:", accuracy_score(y_test_iris, y_pred_iris))
+
+# Train and evaluate on Wine Quality dataset
+voting_clf_hard.fit(X_train_wine, y_train_wine)
+y_pred_wine = voting_clf_hard.predict(X_test_wine)
+print("Voting Classifier (Hard Voting) Accuracy on Wine:", accuracy_score(y_test_wine, y_pred_wine))
+
+###
+
+# Soft Voting (average probability)
+voting_clf_soft = VotingClassifier(estimators=[
+    ('lr', log_clf), ('rf', rf_clf), ('svc', svm_clf)], voting='soft')
+
+voting_clf_soft.fit(X_train_iris, y_train_iris)
+y_pred_iris = voting_clf_soft.predict(X_test_iris)
+print("Voting Classifier (Soft Voting) Accuracy on Iris:", accuracy_score(y_test_iris, y_pred_iris))
+
+voting_clf_soft.fit(X_train_wine, y_train_wine)
+y_pred_wine = voting_clf_soft.predict(X_test_wine)
+print("Voting Classifier (Soft Voting) Accuracy on Wine:", accuracy_score(y_test_wine, y_pred_wine))
+
+
+###
+
+
+from sklearn.ensemble import BaggingClassifier
+from sklearn.tree import DecisionTreeClassifier
+
+# Bagging Classifier using Decision Tree
+bag_clf = BaggingClassifier(DecisionTreeClassifier(), n_estimators=100, random_state=42)
+
+# Train and evaluate on Iris dataset
+bag_clf.fit(X_train_iris, y_train_iris)
+y_pred_iris = bag_clf.predict(X_test_iris)
+print("Bagging Classifier Accuracy on Iris:", accuracy_score(y_test_iris, y_pred_iris))
+
+# Train and evaluate on Wine Quality dataset
+bag_clf.fit(X_train_wine, y_train_wine)
+y_pred_wine = bag_clf.predict(X_test_wine)
+print("Bagging Classifier Accuracy on Wine:", accuracy_score(y_test_wine, y_pred_wine))
+
+
+###
+
+
+from sklearn.ensemble import GradientBoostingClassifier
+
+# Gradient Boosting Classifier
+gb_clf = GradientBoostingClassifier(n_estimators=100, random_state=42)
+
+# Train and evaluate on Iris dataset
+gb_clf.fit(X_train_iris, y_train_iris)
+y_pred_iris = gb_clf.predict(X_test_iris)
+print("Gradient Boosting Classifier Accuracy on Iris:", accuracy_score(y_test_iris, y_pred_iris))
+
+# Train and evaluate on Wine Quality dataset
+gb_clf.fit(X_train_wine, y_train_wine)
+y_pred_wine = gb_clf.predict(X_test_wine)
+print("Gradient Boosting Classifier Accuracy on Wine:", accuracy_score(y_test_wine, y_pred_wine))
+
+
+###
+
+print("Voting (Hard) on Iris:", accuracy_score(y_test_iris, voting_clf_hard.predict(X_test_iris)))
+print("Voting (Soft) on Iris:", accuracy_score(y_test_iris, voting_clf_soft.predict(X_test_iris)))
+print("Bagging on Iris:", accuracy_score(y_test_iris, bag_clf.predict(X_test_iris)))
+print("Gradient Boosting on Iris:", accuracy_score(y_test_iris, gb_clf.predict(X_test_iris)))
+
+print("Voting (Hard) on Wine:", accuracy_score(y_test_wine, voting_clf_hard.predict(X_test_wine)))
+print("Voting (Soft) on Wine:", accuracy_score(y_test_wine, voting_clf_soft.predict(X_test_wine)))
+print("Bagging on Wine:", accuracy_score(y_test_wine, bag_clf.predict(X_test_wine)))
+print("Gradient Boosting on Wine:", accuracy_score(y_test_wine, gb_clf.predict(X_test_wine)))
+
+
