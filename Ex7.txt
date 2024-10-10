@@ -1,0 +1,85 @@
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+
+# Load the Abalone dataset
+abalone_url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data'
+abalone_columns = ['Sex', 'Length', 'Diameter', 'Height', 'Whole_weight', 'Shucked_weight', 'Viscera_weight', 'Shell_weight', 'Rings']
+abalone_data = pd.read_csv(abalone_url, header=None, names=abalone_columns)
+
+# Preprocessing Abalone dataset: Encode 'Sex' categorical feature and normalize data
+abalone_data['Sex'] = abalone_data['Sex'].map({'M': 0, 'F': 1, 'I': 2})  # Encoding categorical data
+X_abalone = abalone_data.drop('Rings', axis=1)  # Features
+y_abalone = abalone_data['Rings']  # Target
+
+# Normalize the data
+scaler = StandardScaler()
+X_abalone_scaled = scaler.fit_transform(X_abalone)
+
+# Load the Breast Cancer dataset
+from sklearn.datasets import load_breast_cancer
+data = load_breast_cancer()
+X_cancer = data.data
+y_cancer = data.target
+
+# Normalize the Breast Cancer data
+X_cancer_scaled = scaler.fit_transform(X_cancer)
+
+
+###
+
+from sklearn.decomposition import PCA
+
+# PCA for Abalone dataset
+pca_abalone = PCA()
+X_abalone_pca = pca_abalone.fit_transform(X_abalone_scaled)
+
+# Reduce Abalone data to 4 components
+pca_abalone_4 = PCA(n_components=4)
+X_abalone_pca_4 = pca_abalone_4.fit_transform(X_abalone_scaled)
+
+# PCA for Breast Cancer dataset
+pca_cancer = PCA()
+X_cancer_pca = pca_cancer.fit_transform(X_cancer_scaled)
+
+# Reduce Breast Cancer data to 20 and 10 components
+pca_cancer_20 = PCA(n_components=20)
+X_cancer_pca_20 = pca_cancer_20.fit_transform(X_cancer_scaled)
+
+pca_cancer_10 = PCA(n_components=10)
+X_cancer_pca_10 = pca_cancer_10.fit_transform(X_cancer_scaled)
+
+
+from sklearn.svm import SVC
+from sklearn.model_selection import cross_val_score
+
+# SVM on original Abalone data
+svm_abalone = SVC(kernel='linear')
+scores_abalone = cross_val_score(svm_abalone, X_abalone_scaled, y_abalone, cv=10)
+print("SVM Accuracy on Original Abalone Data:", scores_abalone.mean())
+
+# SVM on PCA-transformed Abalone data (all components)
+scores_abalone_pca = cross_val_score(svm_abalone, X_abalone_pca, y_abalone, cv=10)
+print("SVM Accuracy on PCA (all components) Abalone Data:", scores_abalone_pca.mean())
+
+# SVM on PCA-transformed Abalone data (4 components)
+scores_abalone_pca_4 = cross_val_score(svm_abalone, X_abalone_pca_4, y_abalone, cv=10)
+print("SVM Accuracy on PCA (4 components) Abalone Data:", scores_abalone_pca_4.mean())
+
+# SVM on original Breast Cancer data
+svm_cancer = SVC(kernel='linear')
+scores_cancer = cross_val_score(svm_cancer, X_cancer_scaled, y_cancer, cv=10)
+print("SVM Accuracy on Original Breast Cancer Data:", scores_cancer.mean())
+
+# SVM on PCA-transformed Breast Cancer data (all components)
+scores_cancer_pca = cross_val_score(svm_cancer, X_cancer_pca, y_cancer, cv=10)
+print("SVM Accuracy on PCA (all components) Breast Cancer Data:", scores_cancer_pca.mean())
+
+# SVM on PCA-transformed Breast Cancer data (20 components)
+scores_cancer_pca_20 = cross_val_score(svm_cancer, X_cancer_pca_20, y_cancer, cv=10)
+print("SVM Accuracy on PCA (20 components) Breast Cancer Data:", scores_cancer_pca_20.mean())
+
+# SVM on PCA-transformed Breast Cancer data (10 components)
+scores_cancer_pca_10 = cross_val_score(svm_cancer, X_cancer_pca_10, y_cancer, cv=10)
+print("SVM Accuracy on PCA (10 components) Breast Cancer Data:", scores_cancer_pca_10.mean())
+
+
