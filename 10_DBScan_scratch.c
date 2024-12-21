@@ -10,7 +10,7 @@ double dist(double *x, double *y, int dim) {
     for (int i = 0; i < dim; i++) {
         d += fabs(x[i] - y[i]);
     }
-    return d;
+    return d; 
 }
 
 // Function to calculate the distance matrix
